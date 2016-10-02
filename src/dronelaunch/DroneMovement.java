@@ -9,14 +9,11 @@ package dronelaunch;
  *
  * @author mario
  */
-public class DroneLaunch {
-
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String[] args){
-        // TODO code application logic here
-        System.out.println("Drone Launch");
-    }
+public interface DroneMovement {
+    
+    public void changeDirection(String direction);
+    public void changePosition(int positionX, int positionY);
+    public void translateCommand(String command);
+    
     
 }
