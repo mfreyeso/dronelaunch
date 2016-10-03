@@ -5,12 +5,12 @@
  */
 package dronelaunch;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Stream;
 
 /**
  *
@@ -19,25 +19,34 @@ import java.util.stream.Stream;
 
 public class DroneFileStream {
     
-    private Stream<String> streamContent;
+    private ArrayList<String> streamContent;
+    
+    public DroneFileStream(){
+        this.streamContent = new ArrayList<>();
+    }
     
     public void readFile(String filename) throws IOException{
-        try (Stream<String> stream = Files.lines(Paths.get("res/"+filename))) {
-            stream            
-                .map(String::trim);
-            setStreamContent(stream);
-        }    
+        
+        Path path = Paths.get(filename);
+        BufferedReader br = Files.newBufferedReader(path);
+        
+        String commandLine;
+        
+        while ((commandLine = br.readLine()) != null) {
+            this.getStreamContent().add(commandLine);
+            //System.out.println(commandLine);
+        }   
     }
 
     public void writeFile(String filename, ArrayList<String> lines) throws IOException{
-        Files.write(Paths.get("res/"+filename), lines);
+        Files.write(Paths.get(filename), lines);
     }
 
-    public Stream<String> getStreamContent() {
+    public ArrayList<String> getStreamContent() {
         return streamContent;
     }
 
-    public void setStreamContent(Stream<String> streamContent) {
+    public void setStreamContent(ArrayList<String> streamContent) {
         this.streamContent = streamContent;
     }
     

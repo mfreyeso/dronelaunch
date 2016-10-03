@@ -11,8 +11,8 @@ package dronelaunch;
  */
 public interface DroneMovement {
     
-    public void changeDirection(String direction);
-    public void changePosition(int positionX, int positionY);
+    public void changeDirection(char direction);
+    public void changePosition();
     public void translateCommand(String command);
     
     

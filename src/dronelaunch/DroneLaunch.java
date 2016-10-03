@@ -17,6 +17,8 @@ public class DroneLaunch {
     public static void main(String[] args){
         // TODO code application logic here
         System.out.println("Drone Launch");
+        RoutesManager rm = new RoutesManager(10);
+        rm.manageDrones("/Users/mario/dronefiles/input.txt");
     }
     
 }
