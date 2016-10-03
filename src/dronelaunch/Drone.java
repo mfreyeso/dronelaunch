@@ -8,6 +8,8 @@ package dronelaunch;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 
 /**
@@ -25,10 +27,10 @@ public class Drone implements DroneMovement {
     private int maxDeliveries;
     private int limitScope;
     
-    private char [] directionsX;
-    private char [] directionsY;
     private Map steps;
-    private Map orientations;
+    private Map mapIndexDirection;
+    private Map mapIndexOrientation;
+    private char [][] mapDirections;
     
     public Drone(String identify, int maxDeliveries){
         this.identify = identify;
@@ -37,11 +39,8 @@ public class Drone implements DroneMovement {
         this.positionY = 0;
         this.direction = 'N';
         this.deliveries = new ArrayList<>();
-         
-        this.directionsX = new char[] {'O','0','E'};
-        this.directionsY = new char [] {'N', '0','S'};
         this.initializeSteps();
-        this.initializeDirections();
+        this.initializeDirectionsAtributes();
     }
     
     private void initializeSteps(){
@@ -52,13 +51,22 @@ public class Drone implements DroneMovement {
       this.steps.put('O', -1);
     }
     
-    private void initializeDirections(){
-        this.orientations = new HashMap();
-        this.orientations.put('I', -1);
-        this.orientations.put('D', 1);
+    private void initializeDirectionsAtributes(){
+        this.mapDirections = new char [][] {{'O', 'E'},
+            {'E', 'O'}, {'S', 'N'}, {'N', 'S'}};
+        
+        this.mapIndexDirection = new HashMap();
+        this.mapIndexDirection.put('N', 0);
+        this.mapIndexDirection.put('S', 1);
+        this.mapIndexDirection.put('O', 2);
+        this.mapIndexDirection.put('E', 3);
+        
+        this.mapIndexOrientation = new HashMap();
+        this.mapIndexOrientation.put('I', 0);
+        this.mapIndexOrientation.put('D', 1);
         
     }
-
+    
     public String getIdentify() {
         return identify;
     }
@@ -115,22 +123,6 @@ public class Drone implements DroneMovement {
         this.orders = orders;
     }
     
-    public char[] getDirectionsX() {
-        return directionsX;
-    }
-
-    public void setDirectionsX(char[] directionsX) {
-        this.directionsX = directionsX;
-    }
-
-    public char[] getDirectionsY() {
-        return directionsY;
-    }
-
-    public void setDirectionsY(char[] directionsY) {
-        this.directionsY = directionsY;
-    }
-
     public Map getSteps() {
         return steps;
     }
@@ -147,43 +139,79 @@ public class Drone implements DroneMovement {
         this.limitScope = limitScope;
     }
     
-    public Map getOrientations() {
-        return orientations;
+    public Map getMapIndexDirection() {
+        return mapIndexDirection;
     }
 
-    public void setOrientations(Map orientations) {
-        this.orientations = orientations;
+    public void setMapIndexDirection(Map mapIndexDirection) {
+        this.mapIndexDirection = mapIndexDirection;
+    }
+
+    public Map getMapIndexOrientation() {
+        return mapIndexOrientation;
+    }
+
+    public void setMapIndexOrientation(Map mapIndexOrientation) {
+        this.mapIndexOrientation = mapIndexOrientation;
+    }
+
+    public char[][] getMapDirections() {
+        return mapDirections;
+    }
+
+    public void setMapDirections(char[][] mapDirections) {
+        this.mapDirections = mapDirections;
     }
     
     public Boolean deliverLaunchs(int limScope){
         this.setLimitScope(limScope);
         Boolean response = false;
         
-        this.getOrders().stream().forEach((order) -> {
-            this.translateCommand(order);
-        });
-        
-        System.out.println(String.valueOf(this.positionX) + String.valueOf(this.positionY));
+        if (this.getOrders().size() <= this.getMaxDeliveries()){
+            String initDescription = "== Reporte de entregas ==";
+            this.getDeliveries().add(initDescription);
+
+            try {
+                this.getOrders().stream().forEach((order) -> {
+                    this.translateCommand(order);
+                });
+                response = true;
+            } catch (Exception e) {
+                Logger.getLogger(RoutesManager.class.getName()).
+                        log(Level.SEVERE,
+                        "An error occurred in the develiveries.");
+            }
+        }else{
+            Logger.getLogger(RoutesManager.class.getName()).
+                        log(Level.INFO,
+                        "The number of orders must be less than or equals to Drone capacity.");
+        }
         return response;
     }
+    
+    public String formatResult(){
+        String [] labelDirections = new String [] {"Norte", "Sur", "Occidente", "Oriente"};
+        String result;
+        
+        int x = this.getPositionX();
+        int y = this.getPositionY();
+        String d = labelDirections[(int) this.getMapIndexDirection().get(this.getDirection())];
+        
+        result = String.format("(%d, %d) dirección %s", x, y, d);
+        return result;
+    } 
  
     @Override
     public void changeDirection(char orientation) {
+        
         char newDirection;
         char actualDirection = this.getDirection();
         
-        int index = (int) this.getSteps().get(actualDirection) * 
-                (int) this.getOrientations().get(orientation);
+        int indexDirection = (int) this.getMapIndexDirection().get(actualDirection);
+        int indexOrientation = (int) this.getMapIndexOrientation().get(orientation);
         
-        if(actualDirection == 'S' || actualDirection == 'N'){
-            newDirection = this.getDirectionsX()[index];
-        }
-        else{
-            newDirection = this.getDirectionsY()[index];
-        }
-        
+        newDirection = this.getMapDirections()[indexDirection][indexOrientation];
         this.setDirection(newDirection);
-        System.out.println(String.valueOf(this.getDirection()));
     }
 
     @Override
@@ -206,10 +234,10 @@ public class Drone implements DroneMovement {
     @Override
     public void translateCommand(String command) {
         for(char action: command.toCharArray()){
-            System.out.println(String.valueOf(action));
             if(action == 'D' ||  action == 'I') { this.changeDirection(action); }
-            else{ this.changePosition(); }    
+            else{ this.changePosition(); }  
         }
+        this.getDeliveries().add(this.formatResult());
     }
 
 }

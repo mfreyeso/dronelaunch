@@ -18,18 +18,11 @@ public class RoutesManager {
     
     private DroneFileStream controlFileStream;
     private int dimensionMaximum;
-    private int [][] mapDroneScope;
     private DroneSingleton instance;
     
     public RoutesManager(int dimesionMaximum){
         this.controlFileStream = new DroneFileStream();
         this.dimensionMaximum = dimesionMaximum;
-        // this.initializeMapDroneScope();
-    }
-    
-    private void initializeMapDroneScope(){
-        int dim = this.getDimensionMaximum();
-        this.mapDroneScope = new int [(2*dim)+1][(2*dim)+1];
     }
     
     public DroneFileStream getControlFileStream() {
@@ -47,14 +40,6 @@ public class RoutesManager {
     public void setDimensionMaximum(int dimensionMaximum) {
         this.dimensionMaximum = dimensionMaximum;
     }
-
-    public int[][] getMapDroneScope() {
-        return mapDroneScope;
-    }
-
-    public void setMapDroneScope(int[][] mapDroneScope) {
-        this.mapDroneScope = mapDroneScope;
-    }
     
     public void createDrone(String identify, int maxDeliveries){ 
         this.instance = DroneSingleton.getInstance();
@@ -62,19 +47,20 @@ public class RoutesManager {
         instance.setMaxDeliveries(maxDeliveries);
     }
     
-    public void manageDrones(String fullPathFile){
-        this.assignRoutes(fullPathFile);
-        //this.placeDrones();
-        this.startDeliveryTask();
+    public void manageDrones(String fullPathFileIn, String fullPathFileOut){
+        this.assignRoutes(fullPathFileIn);
+        this.startDeliveryTask(fullPathFileOut);
     }
     
-    public void placeDrones(){
-        int centerPoint = this.dimensionMaximum;  
-        this.mapDroneScope[centerPoint][centerPoint] = 1;   
-    }
-    
-    public void startDeliveryTask(){
-        DroneSingleton.getInstance().deliverLaunchs(this.getDimensionMaximum());
+    public void startDeliveryTask(String fullPathReport){
+        Boolean deliverLaunchs = DroneSingleton.getInstance().deliverLaunchs(this.getDimensionMaximum());
+        if(deliverLaunchs){
+            try {
+                this.getControlFileStream().writeFile(fullPathReport+"/output.txt", DroneSingleton.getInstance().getDeliveries());
+            } catch (IOException ex) {
+                Logger.getLogger(RoutesManager.class.getName()).log(Level.SEVERE, "The file don't exists in path defined");
+            }
+        }
     }
     
     public void assignRoutes(String fullPathFile){

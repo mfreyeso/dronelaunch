@@ -13,7 +13,7 @@ public class DroneSingleton extends Drone {
     
    private static DroneSingleton instance = null;
    private DroneSingleton() {
-      super("DRL001", 3);// Exists only to defeat instantiation.
+      super("DRL001", 3);
    }
 
    public static DroneSingleton getInstance() {

@@ -34,7 +34,6 @@ public class DroneFileStream {
         
         while ((commandLine = br.readLine()) != null) {
             this.getStreamContent().add(commandLine);
-            //System.out.println(commandLine);
         }   
     }
 
