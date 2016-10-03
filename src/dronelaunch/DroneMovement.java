@@ -12,7 +12,7 @@ package dronelaunch;
 public interface DroneMovement {
     
     public void changeDirection(char direction);
-    public void changePosition();
+    public Boolean changePosition();
     public void translateCommand(String command);
     
     

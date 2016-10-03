@@ -189,15 +189,18 @@ public class Drone implements DroneMovement {
         return response;
     }
     
-    public String formatResult(){
-        String [] labelDirections = new String [] {"Norte", "Sur", "Occidente", "Oriente"};
+    public String formatResult(Boolean indicator){
         String result;
-        
-        int x = this.getPositionX();
-        int y = this.getPositionY();
-        String d = labelDirections[(int) this.getMapIndexDirection().get(this.getDirection())];
-        
-        result = String.format("(%d, %d) dirección %s", x, y, d);
+        if(!indicator){
+            String [] labelDirections = new String [] {"Norte", "Sur", "Occidente", "Oriente"};
+            int x = this.getPositionX();
+            int y = this.getPositionY();
+            String d = labelDirections[(int) this.getMapIndexDirection().get(this.getDirection())];
+
+            result = String.format("(%d, %d) dirección %s", x, y, d);
+        }else{
+            result = "The order is beyond the scope";
+        }
         return result;
     } 
  
@@ -215,29 +218,38 @@ public class Drone implements DroneMovement {
     }
 
     @Override
-    public void changePosition() {
+    public Boolean changePosition() {
+        Boolean response = false;
         char actualDirection = this.getDirection();
         int indexDirection = (int) this.getSteps().get(actualDirection);
         
         if(actualDirection == 'S' || actualDirection == 'N'){
             if (Math.abs(this.getPositionY() + indexDirection) <= this.getLimitScope()){
                 this.setPositionY(this.getPositionY() + indexDirection);
-            }
+            }else{ response = true; }
      
         }else{
             if (Math.abs(this.getPositionX() + indexDirection) <= this.getLimitScope()){
                 this.setPositionX(this.getPositionX() + indexDirection);
-            }
+            }else{ response = true; }
         }
+        
+        return response;
     }
 
     @Override
     public void translateCommand(String command) {
+        Boolean flatLimit = false;
+        
         for(char action: command.toCharArray()){
-            if(action == 'D' ||  action == 'I') { this.changeDirection(action); }
-            else{ this.changePosition(); }  
+            if(!flatLimit){
+                if(action == 'D' ||  action == 'I') { this.changeDirection(action); }
+                else{ 
+                    flatLimit = this.changePosition(); 
+                }
+            }else{ break; }
         }
-        this.getDeliveries().add(this.formatResult());
+        this.getDeliveries().add(this.formatResult(flatLimit));
     }
 
 }
