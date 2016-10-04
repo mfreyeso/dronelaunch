@@ -41,12 +41,6 @@ public class RoutesManager {
         this.dimensionMaximum = dimensionMaximum;
     }
     
-    public void createDrone(String identify, int maxDeliveries){ 
-        this.instance = DroneSingleton.getInstance();
-        instance.setIdentify(identify);
-        instance.setMaxDeliveries(maxDeliveries);
-    }
-    
     public void manageDrones(String fullPathFileIn, String fullPathFileOut){
         this.assignRoutes(fullPathFileIn);
         this.startDeliveryTask(fullPathFileOut);

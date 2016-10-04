@@ -31,7 +31,7 @@ public class DroneLaunch {
         String fullPathOut = sc.next();
         rm.manageDrones(fullPathIn, fullPathOut);
         
-        System.out.println ("The tasks completed successfully.");
+        System.out.println ("The tasks completed successfully, please review the reports generated in output directory");
     }
     
 }
