@@ -6,6 +6,8 @@
 package dronelaunch;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -20,13 +22,9 @@ import java.util.ArrayList;
 public class DroneFileStream {
     
     private ArrayList<String> streamContent;
-    
-    public DroneFileStream(){
-        this.streamContent = new ArrayList<>();
-    }
-    
-    public void readFile(String filename) throws IOException{
         
+    public void readFile(String filename) throws IOException{
+        this.streamContent = new ArrayList<>();
         Path path = Paths.get(filename);
         BufferedReader br = Files.newBufferedReader(path);
         
@@ -47,6 +45,30 @@ public class DroneFileStream {
 
     public void setStreamContent(ArrayList<String> streamContent) {
         this.streamContent = streamContent;
+    }
+    
+    public ArrayList<String> getFiles(String pathDirectory){
+        ArrayList<String> files = new ArrayList<>();
+        File folder = new File(pathDirectory);
+        if(folder.isDirectory()){
+            for(File file: folder.listFiles(new DroneFilter(".txt"))){
+                if(file.isFile()){ files.add(file.getAbsolutePath()); }
+            }
+        }
+        return files;
+    }
+    
+    public class DroneFilter implements FilenameFilter{
+        String extension;
+        
+        DroneFilter(String extension){
+            this.extension=extension;
+        }
+        
+        @Override
+        public boolean accept(File dir, String name){
+            return name.endsWith(extension);
+        }
     }
     
 }

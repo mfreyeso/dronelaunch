@@ -16,7 +16,7 @@ import java.util.logging.Logger;
  *
  * @author mario
  */
-public class Drone implements DroneMovement {
+public class Drone implements DroneMovement, Runnable {
     
     private String identify;
     private int positionX;
@@ -26,6 +26,7 @@ public class Drone implements DroneMovement {
     private ArrayList <String> deliveries;
     private int maxDeliveries;
     private int limitScope;
+    private Thread thread;
     
     private Map steps;
     private Map mapIndexDirection;
@@ -163,18 +164,24 @@ public class Drone implements DroneMovement {
         this.mapDirections = mapDirections;
     }
     
+    public Thread getThread() {
+        return thread;
+    }
+
+    public void setThread(Thread thread) {
+        this.thread = thread;
+    }
+    
     public Boolean deliverLaunchs(int limScope){
         this.setLimitScope(limScope);
         Boolean response = false;
-        
+
         if (this.getOrders().size() <= this.getMaxDeliveries()){
             String initDescription = "== Reporte de entregas ==";
             this.getDeliveries().add(initDescription);
 
             try {
-                this.getOrders().stream().forEach((order) -> {
-                    this.translateCommand(order);
-                });
+                this.start();
                 response = true;
             } catch (Exception e) {
                 Logger.getLogger(RoutesManager.class.getName()).
@@ -250,6 +257,27 @@ public class Drone implements DroneMovement {
             }else{ break; }
         }
         this.getDeliveries().add(this.formatResult(flatLimit));
+    }
+
+    @Override
+    public void run() {
+        System.out.println("Sending Thread" + this.getIdentify());
+        this.getOrders().stream().forEach((order) -> {
+            try {
+                System.out.println(order);
+                this.translateCommand(order);
+                Thread.sleep(50);
+            } catch (InterruptedException ex) {
+                Logger.getLogger(Drone.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        });
+    }
+    
+    public void start(){
+        if (this.getThread() == null){
+            this.thread = new Thread(this, this.getIdentify());
+            this.getThread().start();
+        }
     }
 
 }
