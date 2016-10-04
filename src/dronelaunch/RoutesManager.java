@@ -61,12 +61,12 @@ public class RoutesManager {
     }
     
     public void manageDrones(String fullPathFileIn){
-        
-        /// TODO
         ArrayList<String> files = this.getControlFileStream().getFiles(fullPathFileIn);
+
         for(int i=0; i < files.size(); i++){
             String identify = String.format("dr0%d", (i+1));
             Drone drone = new Drone(identify, 10);
+            
             this.assignRoutes(files.get(i), drone);
             this.getDroneCollection().add(drone);
         }

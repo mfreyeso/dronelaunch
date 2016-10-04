@@ -172,7 +172,7 @@ public class Drone implements DroneMovement, Runnable {
         this.thread = thread;
     }
     
-    public Boolean deliverLaunchs(int limScope){
+    public synchronized Boolean deliverLaunchs(int limScope){
         this.setLimitScope(limScope);
         Boolean response = false;
 
@@ -182,6 +182,7 @@ public class Drone implements DroneMovement, Runnable {
 
             try {
                 this.start();
+                Thread.sleep(1000);
                 response = true;
             } catch (Exception e) {
                 Logger.getLogger(RoutesManager.class.getName()).
@@ -261,15 +262,9 @@ public class Drone implements DroneMovement, Runnable {
 
     @Override
     public void run() {
-        System.out.println("Sending Thread" + this.getIdentify());
+        System.out.println("Sending Drone: " + this.getIdentify());
         this.getOrders().stream().forEach((order) -> {
-            try {
-                System.out.println(order);
-                this.translateCommand(order);
-                Thread.sleep(50);
-            } catch (InterruptedException ex) {
-                Logger.getLogger(Drone.class.getName()).log(Level.SEVERE, null, ex);
-            }
+            this.translateCommand(order);
         });
     }
     
