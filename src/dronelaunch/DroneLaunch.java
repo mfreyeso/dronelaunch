@@ -33,7 +33,7 @@ public class DroneLaunch {
         rm.manageDrones(fullPathIn);
         
         rm.sendDrones(fullPathOut);
-        System.out.println ("The deliveries were completed successfully.");
+        System.out.println ("The deliveries were completed successfully, please review the reports generated in output directory.");
     }
 
 }
