@@ -25,13 +25,15 @@ public class DroneLaunch {
         int limBlocks = sc.nextInt();
         RoutesManager rm = new RoutesManager(limBlocks);
         
-        System.out.println ("Please enter the fullpath of file with drone routes: ");
+        System.out.println ("Please enter the fullpath of directory with drone routes: ");
         String fullPathIn = sc.next();
         System.out.println ("Please enter the fullpath of directory for deliveries report: ");
-        String fullPathOut = sc.next();
-        rm.manageDrones(fullPathIn, fullPathOut);
         
-        System.out.println ("The tasks completed successfully, please review the reports generated in output directory");
+        String fullPathOut = sc.next();
+        rm.manageDrones(fullPathIn);
+        
+        rm.sendDrones(fullPathOut);
+        System.out.println ("The deliveries were completed successfully, please review the reports generated in output directory.");
     }
-    
+
 }

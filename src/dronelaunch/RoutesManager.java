@@ -18,11 +18,14 @@ public class RoutesManager {
     
     private DroneFileStream controlFileStream;
     private int dimensionMaximum;
-    private DroneSingleton instance;
+    private ArrayList<Drone> droneCollection;
+    private int numberDrones;
     
     public RoutesManager(int dimesionMaximum){
         this.controlFileStream = new DroneFileStream();
         this.dimensionMaximum = dimesionMaximum;
+        this.numberDrones = 20;
+        this.droneCollection = new ArrayList<>();
     }
     
     public DroneFileStream getControlFileStream() {
@@ -41,9 +44,39 @@ public class RoutesManager {
         this.dimensionMaximum = dimensionMaximum;
     }
     
-    public void manageDrones(String fullPathFileIn, String fullPathFileOut){
-        this.assignRoutes(fullPathFileIn);
-        this.startDeliveryTask(fullPathFileOut);
+    public ArrayList<Drone> getDroneCollection() {
+        return droneCollection;
+    }
+
+    public void setDroneCollection(ArrayList<Drone> droneCollection) {
+        this.droneCollection = droneCollection;
+    }
+
+    public int getNumberDrones() {
+        return numberDrones;
+    }
+
+    public void setNumberDrones(int numberDrones) {
+        this.numberDrones = numberDrones;
+    }
+    
+    public void manageDrones(String fullPathFileIn){
+        ArrayList<String> files = this.getControlFileStream().getFiles(fullPathFileIn);
+
+        for(int i=0; i < files.size(); i++){
+            String identify = String.format("dr0%d", (i+1));
+            Drone drone = new Drone(identify, 10);
+            
+            this.assignRoutes(files.get(i), drone);
+            this.getDroneCollection().add(drone);
+        }
+    }
+    
+    public void sendDrones(String fullPathFileOut){
+        for(Drone drone: this.getDroneCollection()){
+            this.startDeliveryTask(fullPathFileOut, drone);
+        }
+
     }
     
     public void startDeliveryTask(String fullPathReport){
@@ -57,6 +90,19 @@ public class RoutesManager {
         }
     }
     
+    public void startDeliveryTask(String fullPathReport, Drone drone){
+        Boolean deliverLaunchs = drone.deliverLaunchs(this.getDimensionMaximum());
+        if(deliverLaunchs){
+            try {
+                String fileOutput = String.format("%s/out%s.txt", fullPathReport, drone.getIdentify());
+                this.getControlFileStream().writeFile(fileOutput, drone.getDeliveries());
+            } catch (IOException ex) {
+                Logger.getLogger(RoutesManager.class.getName()).log(Level.SEVERE, "The file don't exists in path defined");
+            }
+        }
+    }
+    
+    
     public void assignRoutes(String fullPathFile){
         try {
             this.getControlFileStream().readFile(fullPathFile);
@@ -68,8 +114,18 @@ public class RoutesManager {
                     "The file don't exists in path defined");
         }  
     }
-
     
-    
+    public void assignRoutes(String fullPathFile, Drone drone){
+        try {
+            this.getControlFileStream().readFile(fullPathFile);
+            ArrayList<String> routes = this.getControlFileStream().getStreamContent();
+            drone.setOrders(routes);
+        } catch (IOException ex) {
+            Logger.getLogger(RoutesManager.class.getName()).
+                    log(Level.SEVERE,
+                    "The file don't exists in path defined");
+        }
+        
+    }
     
 }
